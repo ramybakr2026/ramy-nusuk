@@ -15,9 +15,23 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center p-4">
 
     <!-- Container -->
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-6 my-auto">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-5 my-auto">
 
-        <!-- Header -->
+        <!-- الصلاة على النبي في الأول خالص -->
+        <div class="text-center pb-1 border-b border-slate-800">
+            <span class="text-xs font-bold text-amber-400 tracking-wide">« اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ »</span>
+        </div>
+
+        <!-- Header Image & Banner Section (صورة الكعبة المشرفة) -->
+        <div class="relative rounded-2xl overflow-hidden border border-amber-500/30 shadow-lg">
+            <img src="https://images.unsplash.com/photo-1565552303039-444f215f9b45?q=80&w=800&auto=format&fit=crop" alt="الكعبة المشرفة" class="w-full h-44 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-3 text-center">
+                <span class="text-[11px] text-amber-300 font-bold drop-shadow">نسك.. بوابتكم إلى الحرمين الشريفين</span>
+                <p class="text-[10px] text-slate-200 font-medium leading-tight mt-0.5">«اللَّهُمَّ حَجَّةً لا رِيَاءَ فِيهَا وَلا سُمْعَةً وَعُمْرَةً تَقَبَّلُهَا يَا كَرِيمُ»</p>
+            </div>
+        </div>
+
+        <!-- Title Header -->
         <div class="text-center space-y-2">
             <div class="inline-flex items-center justify-center bg-emerald-950/60 border border-emerald-500/30 px-4 py-1.5 rounded-full text-emerald-400 text-xs font-semibold">
                 ✨ تحدي نسك: 100 رحلة عمرة
@@ -28,23 +42,23 @@
             </p>
         </div>
 
-        <!-- Stats Bar -->
+        <!-- Stats Bar (أعداد تفاعلية تبدأ من الصفر وتتحدث بالضغطات الحقيقية) -->
         <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-3 flex justify-around text-center text-xs">
             <div>
                 <span class="block text-slate-400 text-[10px]">متاح للاستخدام</span>
-                <span class="text-emerald-400 font-bold text-sm">12,250 مفتاح</span>
+                <span id="availableCount" class="text-emerald-400 font-bold text-sm">0 مفتاح</span>
             </div>
             <div class="border-r border-slate-800"></div>
             <div>
                 <span class="block text-slate-400 text-[10px]">تم توزيع</span>
-                <span class="text-amber-400 font-bold text-sm">175,350 مفتاح</span>
+                <span id="distributedCount" class="text-amber-400 font-bold text-sm">0 مفتاح</span>
             </div>
         </div>
 
-        <!-- VIP / Primary Code Section -->
+        <!-- VIP / Primary Code Section (كودك الأساسي) -->
         <div class="bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 border-2 border-amber-500/40 rounded-2xl p-4 relative shadow-lg">
-            <div class="absolute -top-3 right-4 bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full">
-                🔥 كود مميز (أول كود)
+            <div class="absolute -top-3 right-4 bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow">
+                🔥 كود مميز (كود المنصة الأساسي)
             </div>
             <div class="text-center space-y-3 mt-1">
                 <span class="text-xs text-amber-300 font-medium block">مفتاحك جاهز للنسخ الفوري</span>
@@ -102,26 +116,43 @@
 
     <!-- JavaScript Logic -->
     <script>
-        let codesList = [
-            "NG-PjaCPjw0", // كودك الخاص في المقدمة تماماً
-            "NG-Arx7w26c",
-            "NG-F216RIyz",
-            "NG-1985fhu",
-            "NG-3GqxRZ4p",
-            "NG-C1LAtWuO"
+        let codesList = JSON.parse(localStorage.getItem('nusuk_codes_list')) || [
+            "NG-PjaCPjw0"
         ];
 
         let currentIndex = 0;
         const mainCodeDisplay = document.getElementById("mainCodeDisplay");
         const copyBtn = document.getElementById("copyBtn");
+        const availableCountEl = document.getElementById("availableCount");
+        const distributedCountEl = document.getElementById("distributedCount");
 
-        function updateDisplay() {
-            mainCodeDisplay.textContent = codesList[currentIndex];
+        // العدادات تبدأ من الصفر وتتفاعل مع الضغطات
+        let availableCount = parseInt(localStorage.getItem('nusuk_available_v3')) || 0;
+        let distributedCount = parseInt(localStorage.getItem('nusuk_distributed_v3')) || 0;
+
+        function updateCountersUI() {
+            availableCountEl.textContent = availableCount.toLocaleString('en-US') + " مفتاح";
+            distributedCountEl.textContent = distributedCount.toLocaleString('en-US') + " مفتاح";
+            localStorage.setItem('nusuk_available_v3', availableCount);
+            localStorage.setItem('nusuk_distributed_v3', distributedCount);
+            localStorage.setItem('nusuk_codes_list', JSON.stringify(codesList));
         }
 
+        updateCountersUI();
+
+        function updateDisplay() {
+            if (currentIndex >= codesList.length) currentIndex = 0;
+            mainCodeDisplay.textContent = codesList[currentIndex];
+        }
+        updateDisplay();
+
+        // عند نسخ الكود أو فتحه، يزيد عداد "تم توزيع"
         function copyMainCode() {
             const codeToCopy = codesList[currentIndex];
             navigator.clipboard.writeText(codeToCopy).then(() => {
+                distributedCount += 1;
+                updateCountersUI();
+
                 copyBtn.textContent = "✅ تم النسخ!";
                 copyBtn.classList.replace("bg-amber-500", "bg-emerald-600");
                 setTimeout(() => {
@@ -132,23 +163,43 @@
         }
 
         function nextCode() {
-            currentIndex = (currentIndex + 1) % codesList.length;
-            updateDisplay();
+            if(codesList.length > 0) {
+                currentIndex = (currentIndex + 1) % codesList.length;
+                distributedCount += 1;
+                updateCountersUI();
+                updateDisplay();
+            }
         }
 
+        // عند إضافة كود جديد: منع التكرار وإظهار رسالة "الكود مضاف بالفعل"
         function addNewCode() {
             const inputField = document.getElementById("userCodeInput");
             const formMsg = document.getElementById("formMsg");
             let val = inputField.value.trim().toUpperCase();
 
-            if(val.startsWith("NG-") && val.length >= 10) {
-                codesList.push(val);
-                inputField.value = "";
-                formMsg.textContent = "تم إضافة كودك بنجاح للمنصة!";
-                formMsg.classList.remove("hidden");
-                setTimeout(() => { formMsg.classList.add("hidden"); }, 3000);
+            if(val.startsWith("NG-") && val.length >= 8) {
+                if(!codesList.includes(val)) {
+                    codesList.push(val);
+                    availableCount += 1; // يزيد عداد المتاح عند الإضافة السليمة الجديدة
+                    updateCountersUI();
+
+                    inputField.value = "";
+                    formMsg.textContent = "تم إضافة كودك بنجاح للمنصة!";
+                    formMsg.classList.remove("hidden");
+                    formMsg.classList.replace("text-rose-400", "text-emerald-400");
+                    setTimeout(() => { formMsg.classList.add("hidden"); }, 3000);
+                } else {
+                    // رسالة واضحة بأن الكود مضاف مسبقاً ولا يقبل التكرار
+                    formMsg.textContent = "عذراً، هذا الكود مضاف بالفعل!";
+                    formMsg.classList.remove("hidden");
+                    formMsg.classList.replace("text-emerald-400", "text-rose-400");
+                    setTimeout(() => { 
+                        formMsg.classList.add("hidden"); 
+                        formMsg.classList.replace("text-rose-400", "text-emerald-400");
+                    }, 3000);
+                }
             } else {
-                formMsg.textContent = "الرجاء إدخال كود صحيح يبدأ بـ NG-";
+                formMsg.textContent = "خطأ: الرجاء إدخال كود صحيح يبدأ بـ NG-";
                 formMsg.classList.remove("hidden");
                 formMsg.classList.replace("text-emerald-400", "text-rose-400");
                 setTimeout(() => { 
